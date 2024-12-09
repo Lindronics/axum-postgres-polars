@@ -1,0 +1,13 @@
+[package]
+name = "axum-postgres-polars"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.94"
+axum = "0.7.9"
+sqlx = { version = "0.8.2", features = ["postgres"] }
+tokio = "1.42.0"
+
+[dev-dependencies]
+testcontainers-modules = { version = "0.11.4", features = ["postgres"] }
