@@ -1,5 +1,7 @@
-use sqlx::PgPool;
+use polars::{io::SerReader, prelude::CsvReader};
+use sqlx::{postgres::PgPoolCopyExt, PgPool};
 
+use futures::stream::StreamExt;
 pub use sqlx::postgres::PgConnectOptions as Config;
 
 use crate::model;
@@ -49,5 +51,33 @@ impl DbClient {
         .await?;
 
         Ok(res)
+    }
+
+    pub async fn print_all_boats(&self) -> Result<String, model::Error> {
+        let mut output_stream = self
+            .pool
+            .copy_out_raw(
+                r#"
+                COPY (
+                    SELECT name, length_ft, rig 
+                    FROM boats
+                ) 
+                TO STDOUT CSV HEADER"#,
+            )
+            .await?;
+
+        // Looks like polars doesn't support async readers from what I can see,
+        // so we'll have to read the stream of batches into memory before we can parse it.
+        //
+        // TODO implement an async CSV reader.
+        let mut data = Vec::new();
+        while let Some(Ok(chunk)) = output_stream.next().await {
+            data.extend_from_slice(chunk.as_ref());
+        }
+
+        let reader = CsvReader::new(std::io::Cursor::new(data));
+        let df = reader.finish()?;
+
+        Ok(format!("{}", df))
     }
 }

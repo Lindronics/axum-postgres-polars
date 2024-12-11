@@ -24,6 +24,7 @@ pub async fn start(config: Config, listener: tokio::net::TcpListener) -> anyhow:
     let app = Router::new()
         .route("/up", get(routes::health_check))
         .route("/boats", get(routes::get_all_boats).put(routes::put_boat))
+        .route("/boats/print", get(routes::print_all_boats))
         .with_state(context);
     axum::serve(listener, app).await?;
     Ok(())

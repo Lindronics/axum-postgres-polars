@@ -20,3 +20,8 @@ pub async fn get_all_boats(
     let boats = state.db.get_all_boats().await?;
     Ok(Json(boats))
 }
+
+pub async fn print_all_boats(State(state): State<AppContext>) -> Result<String, model::Error> {
+    let s = state.db.print_all_boats().await?;
+    Ok(s)
+}

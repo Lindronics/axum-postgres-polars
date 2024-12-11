@@ -101,4 +101,26 @@ pub async fn put_get() {
         .unwrap();
 
     assert_eq!(res.len(), 2);
+
+    let text = client
+        .get(format!("{base_url}/boats/print"))
+        .send()
+        .await
+        .unwrap()
+        .text()
+        .await
+        .unwrap();
+    assert_eq!(
+        text.trim(),
+        "shape: (2, 3)
+┌────────────┬───────────┬───────┐
+│ name       ┆ length_ft ┆ rig   │
+│ ---        ┆ ---       ┆ ---   │
+│ str        ┆ i64       ┆ str   │
+╞════════════╪═══════════╪═══════╡
+│ Enterprise ┆ 36        ┆ Sloop │
+│ Endeavour  ┆ 42        ┆ Ketch │
+└────────────┴───────────┴───────┘"
+            .trim()
+    );
 }

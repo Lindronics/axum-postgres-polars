@@ -11,12 +11,18 @@ pub struct Boat {
 pub enum Error {
     #[error("Db error: {0}")]
     DbError(#[from] sqlx::Error),
+    #[error("Polars error: {0}")]
+    PolarsError(#[from] polars::error::PolarsError),
 }
 
 impl IntoResponse for Error {
     fn into_response(self) -> axum::response::Response {
         let (status, body) = match self {
             Error::DbError(_) => (
+                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                self.to_string(),
+            ),
+            Error::PolarsError(_) => (
                 axum::http::StatusCode::INTERNAL_SERVER_ERROR,
                 self.to_string(),
             ),

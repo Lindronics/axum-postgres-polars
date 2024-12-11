@@ -4,17 +4,19 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.94"
-axum = "0.7.9"
-serde = { version = "1.0.215", features = ["derive"] }
-sqlx = { version = "0.8.2", features = ["postgres", "runtime-tokio"] }
-thiserror = "2.0.6"
-tokio = "1.42.0"
+anyhow = "1"
+axum = "0.7"
+futures = "0.3"
+polars = "0.45"
+serde = { version = "1", features = ["derive"] }
+sqlx = { version = "0.8", features = ["postgres", "runtime-tokio"] }
+thiserror = "2"
+tokio = { version = "1", features = ["rt-multi-thread"] }
 
 [dev-dependencies]
-testcontainers-modules = { version = "0.11.4", features = [
+testcontainers-modules = { version = "0.11", features = [
     "postgres",
     "blocking",
 ] }
-reqwest = { version = "0.12.9", features = ["json"] }
-serde_json = "1.0.133"
+reqwest = { version = "0.12", features = ["json"] }
+serde_json = "1"
