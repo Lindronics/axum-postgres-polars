@@ -206,7 +206,6 @@ dependencies = [
  "polars",
  "reqwest",
  "serde",
- "serde_json",
  "sqlx",
  "testcontainers-modules",
  "thiserror 2.0.6",
