@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS boats (
+    id SERIAL PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+    rig TEXT NOT NULL,
+    length_ft INTEGER NOT NULL
+);
