@@ -54,7 +54,7 @@ impl DbClient {
     }
 
     pub async fn print_all_boats(&self) -> Result<String, model::Error> {
-        let mut output_stream = self
+        let output_stream = self
             .pool
             .copy_out_raw(
                 r#"
@@ -66,18 +66,20 @@ impl DbClient {
             )
             .await?;
 
-        // Looks like polars doesn't support async readers from what I can see,
-        // so we'll have to read the stream of batches into memory before we can parse it.
+        // Looks like polars doesn't support async CSV readers from what I can see,
+        // so we'll have to read the stream of chunks into memory before we can parse it.
         //
         // TODO implement an async CSV reader.
-        let mut data = Vec::new();
-        while let Some(Ok(chunk)) = output_stream.next().await {
-            data.extend_from_slice(chunk.as_ref());
-        }
+        //
+        // Also, we could use Postgres' binary format directly if we implement a custom parser.
+        let csv = output_stream
+            .filter_map(|chunk| std::future::ready(chunk.ok()))
+            .flat_map(futures::stream::iter)
+            .collect::<Vec<_>>()
+            .await;
 
-        let reader = CsvReader::new(std::io::Cursor::new(data));
-        let df = reader.finish()?;
+        let df = CsvReader::new(std::io::Cursor::new(csv)).finish()?;
 
-        Ok(format!("{}", df))
+        Ok(df.to_string())
     }
 }
